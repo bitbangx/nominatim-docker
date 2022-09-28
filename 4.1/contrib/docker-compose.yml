@@ -3,7 +3,7 @@ version: "3"
 services:
     nominatim:
         container_name: nominatim
-        image: mediagis/nominatim:4.1
+        build: ../
         restart: always
         ports:
             - "8080:8080"
@@ -14,6 +14,7 @@ services:
             NOMINATIM_PASSWORD: very_secure_password
         volumes:
             - nominatim-data:/var/lib/postgresql/14/main
+            - ./nominatim.tar.gz:/tmp
         shm_size: 1gb
 
 volumes:
