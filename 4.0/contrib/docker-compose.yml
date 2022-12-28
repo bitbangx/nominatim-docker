@@ -4,20 +4,20 @@ services:
     nominatim:
         container_name: nominatim
         build: ../
-        restart: always
         ports:
             - "8080:8080"
+            - "15432:5432"
         environment:
             # see https://github.com/mediagis/nominatim-docker/tree/master/4.0#configuration for more options
             PBF_URL: https://download.geofabrik.de/europe/monaco-latest.osm.pbf
             REPLICATION_URL: https://download.geofabrik.de/europe/monaco-updates/
             NOMINATIM_PASSWORD: very_secure_password
-            POSTGRES_SHARED_BUFFERS: 2GB
-            POSTGRES_MAINTENANCE_WORK_MEM: 512MB
-            POSTGRES_AUTOVACUUM_WORK_MEM: 512MB
-            POSTGRES_WORK_MEM: 5424kB
-            POSTGRES_EFFECTIVE_CACHE_SIZE: 6GB
-            POSTGRES_MAX_WAL_SIZE: 1GB
+            POSTGRES_SHARED_BUFFERS: 8GB
+            POSTGRES_MAINTENANCE_WORK_MEM: 2GB
+            POSTGRES_AUTOVACUUM_WORK_MEM: 2GB
+            POSTGRES_WORK_MEM: 21696kB
+            POSTGRES_EFFECTIVE_CACHE_SIZE: 24GB
+            POSTGRES_MAX_WAL_SIZE: 4GB
         volumes:
             - nominatim-data:/var/lib/postgresql/12/main
             - ./nominatim.tar.gz:/tmp/nominatim.tar.gz
