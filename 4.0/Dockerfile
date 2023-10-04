@@ -31,6 +31,7 @@ RUN true \
         libboost-system-dev \
         libboost-filesystem-dev \
         # PostgreSQL.
+        postgresql-client \
         postgresql-contrib \
         postgresql-server-dev-12 \
         postgresql-12-postgis-3 \
@@ -57,7 +58,8 @@ RUN true \
         # Misc.
         git \
         curl \
-        sudo
+        sudo \
+        gzip
 
 
 # Configure postgres.

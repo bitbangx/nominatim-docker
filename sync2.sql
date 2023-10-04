@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION get_addressdata2(in_place_id BIGINT, full_address BOOLEAN)
+CREATE OR REPLACE FUNCTION get_place_address_data(in_place_id BIGINT, full_address BOOLEAN)
   RETURNS setof addressline
   AS $$
 DECLARE
@@ -189,7 +189,7 @@ LANGUAGE plpgsql STABLE;
 
 
 
-CREATE OR REPLACE FUNCTION get_address_by_language2(for_place_id BIGINT,
+CREATE OR REPLACE FUNCTION get_place_address(for_place_id BIGINT,
                                                    housenumber INTEGER,
                                                    languagepref TEXT[])
   RETURNS TEXT
@@ -207,7 +207,7 @@ BEGIN
   FOR location IN
     SELECT place_id, name,
        CASE WHEN place_id = for_place_id THEN 99 ELSE rank_address END as rank_address
-    FROM get_addressdata2(for_place_id, false)
+    FROM get_place_address_data(for_place_id, false)
     WHERE isaddress order by rank_address desc
   LOOP
     currresult := trim(get_name_by_language(location.name, languagepref));
@@ -242,13 +242,13 @@ UPDATE kam_places SET address_class = CASE
     ELSE NULL
   END;
 
-UPDATE places SET address = get_address_by_language2(
+UPDATE places SET address = get_place_address(
     place_id,
     -1,
     ARRAY ['name:it-IT','name:it','name:en-US','name:en','name','brand','official_name:it-IT','short_name:it-IT','official_name:it','short_name:it','official_name:en-US','short_name:en-US','official_name:en','short_name:en','official_name','short_name','ref','type']
   );
 
-UPDATE places SET short_address = get_address_by_language2(
+UPDATE places SET short_address = get_place_address(
     place_id,
     -1,
     ARRAY ['short_name:it-IT','short_name:it','short_name:en-US','short_name:en','short_name','name:it-IT','name:it','name:en-US','name:en','name','brand','official_name:it-IT','official_name:it','official_name:en-US','official_name:en','official_name','type','ref']
@@ -264,36 +264,36 @@ WHERE x.place_id = p.place_id;
 
 
 
-INSERT INTO kam_places (place_id, osm_id, osm_type, class, name, short_name, address, short_address, parent_ids, country_code, address_rank)
-SELECT place_id, osm_id, osm_type, address_class, name, short_name, address, short_address, parent_ids, country_code, address_rank FROM places_it;
+-- INSERT INTO kam_places (place_id, osm_id, osm_type, class, name, short_name, address, short_address, parent_ids, country_code, address_rank)
+-- SELECT place_id, osm_id, osm_type, address_class, name, short_name, address, short_address, parent_ids, country_code, address_rank FROM places_it;
 
-UPDATE kam_places SET _full_text_search = CONCAT(name, ' - ' , address);
+-- UPDATE kam_places SET _full_text_search = CONCAT(name, ' - ' , address);
 
 
 
 
           
-CREATE OR REPLACE FUNCTION get_address_by_language3(for_place_id BIGINT, languagepref TEXT[])
-  RETURNS jsonb
-  AS $$
-DECLARE
-  address jsonb;
-BEGIN
-  SELECT jsonb_object_agg(CASE
-      WHEN rank_address = 1 THEN 'continent'
-      WHEN rank_address = 2 THEN 'country'
-      WHEN rank_address = 3 THEN 'state'
-      WHEN rank_address = 4 THEN 'county'
-      WHEN rank_address = 5 THEN 'city'
-      WHEN rank_address = 6 THEN 'suburb'
-      WHEN rank_address = 7 THEN 'neighbourhood'
-      ELSE 'undefined'
-    END, get_name_by_language(name, languagepref)) INTO address FROM get_addressdata2(for_place_id, true) WHERE rank_address > 0 AND < 8;
+-- CREATE OR REPLACE FUNCTION get_address_by_language3(for_place_id BIGINT, languagepref TEXT[])
+--   RETURNS jsonb
+--   AS $$
+-- DECLARE
+--   address jsonb;
+-- BEGIN
+--   SELECT jsonb_object_agg(CASE
+--       WHEN rank_address = 1 THEN 'continent'
+--       WHEN rank_address = 2 THEN 'country'
+--       WHEN rank_address = 3 THEN 'state'
+--       WHEN rank_address = 4 THEN 'county'
+--       WHEN rank_address = 5 THEN 'city'
+--       WHEN rank_address = 6 THEN 'suburb'
+--       WHEN rank_address = 7 THEN 'neighbourhood'
+--       ELSE 'undefined'
+--     END, get_name_by_language(name, languagepref)) INTO address FROM get_place_address_data(for_place_id, true) WHERE rank_address > 0 AND < 8;
   
-  RETURN address;
-END;
-$$
-LANGUAGE plpgsql STABLE;
+--   RETURN address;
+-- END;
+-- $$
+-- LANGUAGE plpgsql STABLE;
 
           
-SELECT get_address_by_language3(8940378, ARRAY ['name:it-IT','name:it','name:en-US','name:en','name','brand','official_name:it-IT','short_name:it-IT','official_name:it','short_name:it','official_name:en-US','short_name:en-US','official_name:en','short_name:en','official_name','short_name','ref','type']);
+-- SELECT get_address_by_language3(8940378, ARRAY ['name:it-IT','name:it','name:en-US','name:en','name','brand','official_name:it-IT','short_name:it-IT','official_name:it','short_name:it','official_name:en-US','short_name:en-US','official_name:en','short_name:en','official_name','short_name','ref','type']);

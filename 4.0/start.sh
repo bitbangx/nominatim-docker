@@ -38,10 +38,13 @@ fi
 
 service postgresql start
 
-cd ${PROJECT_DIR} && sudo -E -u nominatim nominatim refresh --website --functions
+sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} psql -U nominatim -h 127.0.0.1 < /tmp/places.sql
+sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} pg_dump -U nominatim -h 127.0.0.1 --table public.places | gzip > /tmp/places.sql.gz
 
-service apache2 start
+# cd ${PROJECT_DIR} && sudo -E -u nominatim nominatim refresh --website --functions
 
-# fork a process and wait for it
-tail -f /var/log/postgresql/postgresql-12-main.log &
-wait
+# service apache2 start
+
+# # fork a process and wait for it
+# tail -f /var/log/postgresql/postgresql-12-main.log &
+# wait

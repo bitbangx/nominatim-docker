@@ -22,6 +22,7 @@ services:
             - nominatim-data:/var/lib/postgresql/12/main
             - ./nominatim.tar.gz:/tmp/nominatim.tar.gz
             - ./tokenizer.php:/tmp/tokenizer.php
+            - ./places.sql:/tmp/places.sql
         shm_size: 1gb
 
 volumes:

@@ -24,8 +24,10 @@ tar -xzvf /tmp/nominatim.tar.gz
 mv aso /tmp/nominatim.sql
 
 sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} psql -U nominatim -h 127.0.0.1 < /tmp/nominatim.sql
+sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} psql -U nominatim -h 127.0.0.1 < /tmp/init.sql
 
 rm /tmp/nominatim.sql
+rm /tmp/init.sql
 
 mkdir ${PROJECT_DIR}/tokenizer
 cp /tmp/tokenizer.php ${PROJECT_DIR}/tokenizer/tokenizer.php
