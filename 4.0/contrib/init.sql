@@ -187,8 +187,6 @@ $$
 LANGUAGE plpgsql STABLE;
 
 
-
-
 CREATE OR REPLACE FUNCTION get_place_address(for_place_id BIGINT,
                                                    housenumber INTEGER,
                                                    languagepref TEXT[])
@@ -220,6 +218,42 @@ BEGIN
   END LOOP;
 
   RETURN array_to_string(result,', ');
+END;
+$$
+LANGUAGE plpgsql STABLE;
+
+
+CREATE OR REPLACE FUNCTION get_json_address_by_language(for_place_id BIGINT, languagepref TEXT[])
+  RETURNS jsonb
+  AS $$
+DECLARE
+  address jsonb;
+BEGIN
+  SELECT jsonb_object_agg(CASE
+      WHEN rank_address = 1 THEN 'continent'
+      WHEN rank_address = 2 THEN 'country'
+      WHEN rank_address = 3 THEN 'state'
+      WHEN rank_address = 4 THEN 'county'
+      WHEN rank_address = 5 THEN 'city'
+      WHEN rank_address = 6 THEN 'suburb'
+      WHEN rank_address = 7 THEN 'neighbourhood'
+      ELSE 'undefined'
+    END, get_name_by_language(name, languagepref)) INTO address FROM get_place_address_data(for_place_id, true) WHERE rank_address > 0 AND rank_address < 8;
+  
+  RETURN address;
+END;
+$$
+LANGUAGE plpgsql STABLE;
+
+
+CREATE OR REPLACE FUNCTION get_parent_ids(for_place_id BIGINT)
+  RETURNS int8[]
+  AS $$
+DECLARE
+  address int8[];
+BEGIN
+  SELECT array_agg(place_id) INTO address FROM get_place_address_data(for_place_id, true);
+  RETURN address;
 END;
 $$
 LANGUAGE plpgsql STABLE;

@@ -9,8 +9,8 @@ services:
             - "15432:5432"
         environment:
             # see https://github.com/mediagis/nominatim-docker/tree/master/4.0#configuration for more options
-            PBF_URL: https://download.geofabrik.de/europe/monaco-latest.osm.pbf
-            REPLICATION_URL: https://download.geofabrik.de/europe/monaco-updates/
+            PBF_URL: https://download.geofabrik.de/europe/italy/isole-latest.osm.pbf
+            REPLICATION_URL: https://download.geofabrik.de/europe/italy/isole-updates/
             NOMINATIM_PASSWORD: very_secure_password
             POSTGRES_SHARED_BUFFERS: 8GB
             POSTGRES_MAINTENANCE_WORK_MEM: 2GB
@@ -22,6 +22,7 @@ services:
             - nominatim-data:/var/lib/postgresql/12/main
             - ./nominatim.tar.gz:/tmp/nominatim.tar.gz
             - ./tokenizer.php:/tmp/tokenizer.php
+            - ./init.sql:/tmp/init.sql
             - ./places.sql:/tmp/places.sql
         shm_size: 1gb
 

@@ -242,6 +242,12 @@ UPDATE kam_places SET address_class = CASE
     ELSE NULL
   END;
 
+UPDATE places SET name = get_name_by_language(
+    place_id,
+    -1,
+    ARRAY ['name:it-IT','name:it','name:en-US','name:en','name','brand','official_name:it-IT','short_name:it-IT','official_name:it','short_name:it','official_name:en-US','short_name:en-US','official_name:en','short_name:en','official_name','short_name','ref','type']
+  );
+
 UPDATE places SET address = get_place_address(
     place_id,
     -1,

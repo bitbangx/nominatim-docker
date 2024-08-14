@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash
 
 stopServices() {
   service apache2 stop
@@ -18,9 +18,15 @@ IMPORT_FINISHED=/var/lib/postgresql/12/main/import-finished
 TOKENIZER_DIR=${PROJECT_DIR}/tokenizer
 
 if [ ! -f ${IMPORT_FINISHED} ]; then
+  echo "Running init.sh"
   /app/init.sh
+
+  sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} psql -U nominatim -h 127.0.0.1 < /tmp/places.sql
+  sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} pg_dump -U nominatim -h 127.0.0.1 --table public.places | gzip > /tmp/places.sql.gz
+
   touch ${IMPORT_FINISHED}
 else
+  echo "Skipping init.sh"
   chown -R nominatim:nominatim ${PROJECT_DIR}
 fi
 
@@ -38,13 +44,10 @@ fi
 
 service postgresql start
 
-sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} psql -U nominatim -h 127.0.0.1 < /tmp/places.sql
-sudo -E -u postgres PGPASSWORD=${NOMINATIM_PASSWORD} pg_dump -U nominatim -h 127.0.0.1 --table public.places | gzip > /tmp/places.sql.gz
-
 # cd ${PROJECT_DIR} && sudo -E -u nominatim nominatim refresh --website --functions
 
 # service apache2 start
 
-# # fork a process and wait for it
-# tail -f /var/log/postgresql/postgresql-12-main.log &
-# wait
+# fork a process and wait for it
+tail -f /var/log/postgresql/postgresql-12-main.log &
+wait

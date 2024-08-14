@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash
 
 # if we use a bind mount then the PG directory is empty and we have to create it
 if [ ! -f /var/lib/postgresql/14/main/PG_VERSION ]; then
